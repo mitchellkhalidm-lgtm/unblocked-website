@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy</title>
+    <link rel="stylesheet" href="css/indes.css">
+    <style>
+        :root {
+            --bg: #070b14;
+            --bg-2: #101827;
+            --panel: rgba(15, 23, 42, 0.8);
+            --panel-border: rgba(148, 163, 184, 0.22);
+            --text: #edf6ff;
+            --muted: rgba(226, 232, 240, 0.72);
+            --accent: #60a5fa;
+            --accent-2: #34d399;
+            --glow: rgba(96, 165, 250, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(96,165,250,0.25), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(52,211,153,0.18), transparent 28%),
+                linear-gradient(135deg, var(--bg), var(--bg-2));
+            color: var(--text);
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 18px 28px;
+            position: relative;
+        }
+
+        .menu {
+            width: min(940px, 100%);
+            background: rgba(15, 23, 42, 0.74);
+            border: 1px solid var(--panel-border);
+            border-radius: 28px;
+            box-shadow:
+                0 25px 70px rgba(15, 23, 42, 0.7),
+                inset 0 1px 0 rgba(255,255,255,0.08);
+            padding: 34px 30px 28px;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(96,165,250,0.08), transparent 35%, rgba(52,211,153,0.08));
+            pointer-events: none;
+        }
+
+        h1, .subtitle, .game-list {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            text-align: center;
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
+            letter-spacing: 1.2px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            margin: 0 0 28px;
+            font-size: 1rem;
+        }
+
+        .game-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .game-link {
+            display: block;
+            padding: 18px 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            color: var(--text);
+            background: linear-gradient(135deg, rgba(96,165,250,0.14), rgba(52,211,153,0.08));
+            border: 1px solid rgba(148,163,184,0.17);
+            font-size: 1.08rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            text-align: center;
+        }
+
+        .game-link:hover {
+            transform: translateY(-3px);
+            border-color: rgba(96,165,250,0.7);
+            box-shadow: 0 12px 28px rgba(96,165,250,0.16);
+            background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(52,211,153,0.12));
+        }
+
+        .game-link:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        .version {
+            margin-top: 18px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .reveal-button {
+            position: fixed;
+            right: 12px;
+            bottom: 10px;
+            z-index: 20;
+            border: 1px solid rgba(148,163,184,0.18);
+            background: rgba(15, 23, 42, 0.28);
+            color: rgba(255,255,255,0.48);
+            border-radius: 999px;
+            padding: 3px 6px;
+            font-size: 8px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            opacity: 0.35;
+            transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .reveal-button:hover {
+            opacity: 1;
+            color: rgba(255,255,255,0.8);
+            border-color: rgba(96,165,250,0.7);
+        }
+
+        .crash-button {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            z-index: 2;
+            padding: 6px 10px;
+            border: 1px solid rgba(148,163,184,0.3);
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.5);
+            color: var(--muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .crash-button:hover {
+            border-color: rgba(96,165,250,0.7);
+            color: var(--text);
+        }
+
+        .crash-button:focus-visible,
+        .reveal-button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        .crash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            padding: 96px 24px 24px;
+            background: #f1f3f4;
+            color: #202124;
+        }
+
+        .crash-screen[hidden] {
+            display: none;
+        }
+
+        .crash-message {
+            width: min(600px, 100%);
+            margin: min(18vh, 150px) auto 0;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: left;
+        }
+
+        .crash-icon {
+            width: 42px;
+            height: 50px;
+            margin-bottom: 28px;
+            border: 2px solid #5f6368;
+            border-radius: 3px;
+            color: #5f6368;
+            font-size: 24px;
+            line-height: 46px;
+            text-align: center;
+        }
+
+        .crash-icon::after {
+            content: ":(";
+        }
+
+        .crash-message h2 {
+            margin: 0 0 14px;
+            color: #202124;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .crash-message p {
+            margin: 0 0 12px;
+            color: #5f6368;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .restore-button {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            padding: 5px 8px;
+            border: 0;
+            border-radius: 3px;
+            background: transparent;
+            color: #80868b;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0.55;
+            transition: opacity 0.2s ease, color 0.2s ease;
+        }
+
+        .restore-button:hover {
+            color: #5f6368;
+            opacity: 1;
+        }
+
+        .restore-button:focus-visible {
+            outline: 2px solid #5f6368;
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding-top: 24px;
+            }
+
+            .menu {
+                padding: 26px 18px 22px;
+            }
+
+            .game-link {
+                padding: 16px;
+                font-size: 1rem;
+            }
+
+            .reveal-button {
+                right: 10px;
+                bottom: 8px;
+                font-size: 6px;
+                padding: 2px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <h1 id="siteTitle">Educational Websites</h1>
+        <button class="crash-button" id="crashSite" type="button">Crash site</button>
+        <div class="game-list" id="gameList">
+            <a class="game-link" id="game1" href="math-quest/1/index.html" data-real-name="Five Nights at Freddy's" data-fake-name="Math Quest">Math Quest</a>
+            <a class="game-link" id="game2" href="ela/2/index.html" data-real-name="Five Nights at Freddy's 2" data-fake-name="Science Lab">Science Lab</a>
+            <a class="game-link" id="game3" href="social%20studies/ucn/index.html" data-real-name="Five Nights at Freddy's: Ultimate Custom Night" data-fake-name="History Challenge">History Challenge</a>
+            <a class="game-link" id="game7" href="art/GitterCheese-Slope-f70c7c8/index.html" data-real-name="Slope" data-fake-name="Geometry Sprint">Geometry Sprint</a>
+            <a class="game-link" id="cookieclicker" href="math/ozh-cookieclicker-c77f00c/index.html" data-real-name="Cookie Clicker" data-fake-name="Word Power">Word Power</a>
+        </div>
+    </div>
+    <footer class="version">Version 1</footer>
+
+    <div class="crash-screen" id="crashScreen" role="alertdialog" aria-modal="true" aria-labelledby="crashTitle" aria-describedby="crashDescription" hidden>
+        <button class="restore-button" id="restoreSite" type="button">Restore site</button>
+        <div class="crash-message">
+            <div class="crash-icon" aria-hidden="true"></div>
+            <h2 id="crashTitle">Aw, Snap!</h2>
+            <p id="crashDescription">Something went wrong while displaying this webpage.</p>
+            <p>Try restoring the site. If the problem continues, reload the page.</p>
+        </div>
+    </div>
+
+    <button class="reveal-button" id="toggleNames" type="button" aria-pressed="false">Show real names</button>
+
+    <script>
+        const toggleButton = document.getElementById('toggleNames');
+        const siteTitle = document.getElementById('siteTitle');
+        const crashButton = document.getElementById('crashSite');
+        const crashScreen = document.getElementById('crashScreen');
+        const restoreButton = document.getElementById('restoreSite');
+        const gameLinks = document.querySelectorAll('.game-link');
+        let showingRealNames = false;
+
+        crashButton.addEventListener('click', () => {
+            crashScreen.hidden = false;
+            restoreButton.focus();
+        });
+
+        restoreButton.addEventListener('click', () => {
+            crashScreen.hidden = true;
+            crashButton.focus();
+        });
+
+        function updateNames() {
+            siteTitle.textContent = showingRealNames ? 'Game Hub' : 'Educational Websites';
+
+            gameLinks.forEach((link) => {
+                const nextName = showingRealNames ? link.dataset.realName : link.dataset.fakeName;
+                link.textContent = nextName;
+            });
+
+            toggleButton.textContent = showingRealNames ? 'Hide real names' : 'Show real names';
+            toggleButton.setAttribute('aria-pressed', String(showingRealNames));
+        }
+
+        toggleButton.addEventListener('click', () => {
+            showingRealNames = !showingRealNames;
+            updateNames();
+        });
+
+        updateNames();
+    </script>
+</body>
+</html>
